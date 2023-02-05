@@ -1,6 +1,7 @@
 ﻿using Azure.Storage.Blobs;
 using Azure.Storage.Blobs.Models;
 using Codebug.Blob.Services.Interfaces;
+using System.Text;
 
 namespace Codebug.Blob.Services
 {
@@ -13,14 +14,16 @@ namespace Codebug.Blob.Services
             _configService = configService;
         }
 
-        public async Task SaveFileAsync(string base64String, string fileName, Dictionary<string, string> metaInformation)
+        public async Task SaveFileAsync(string base64String, string fileName, 
+            Dictionary<string, string> metaInformation)
         {
+            var fileStream = new MemoryStream(Encoding.UTF8.GetBytes(base64String));
+
             var client = ConstructBlobClient(fileName);
             var blobUploadOptions = new BlobUploadOptions();
-            blobUploadOptions.Metadata = metaInformation;
-            
+            blobUploadOptions.Metadata = metaInformation;            
 
-            await client.UploadAsync(base64String, blobUploadOptions);            
+            await client.UploadAsync(fileStream, blobUploadOptions);            
         }
 
         private BlobClient ConstructBlobClient(string fileName)
